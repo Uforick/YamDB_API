@@ -17,8 +17,14 @@ class Categories(models.Model):
 
 
 class Genres(models.Model):
-    name = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=30, unique=True)
+    name = models.CharField(
+        max_length=200,
+        unique=True,
+    )
+    slug = models.SlugField(
+        max_length=30,
+        unique=True,
+    )
 
     def __str__(self):
         return self.name
@@ -38,13 +44,17 @@ class Titles(models.Model):
         blank=True,
         null=True,
     )
-    description = models.TextField()
+    description = models.TextField(
+        blank=True,
+        null=True,
+    )
     category = models.ForeignKey(
         Categories,
         on_delete=models.SET_NULL,
         related_name='titles',
         blank=True,
         null=True,
+        db_index=False,
     )
     genre = models.ManyToManyField(
         Genres,
