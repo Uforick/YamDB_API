@@ -10,6 +10,7 @@ router_v1.register('genres', GengresViewSet)
 router_v1.register('titles', TitlesViewSet)
 
 urlpatterns = [
+    path('v1/auth/', include('users.urls')),
     path('v1/users/', include('users.urls')),
     path('v1/', include(router_v1.urls)),
 ]
