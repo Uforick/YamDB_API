@@ -1,3 +1,4 @@
+from django.core.mail import send_mail
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
@@ -17,8 +18,15 @@ class CustomUserManager(BaseUserManager):
         if not email:
             raise ValueError(_('The Email must be set'))
         email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
+        user = self.model(username=email, email=email, **extra_fields)
         password = generate_alphanum_crypt_string()
+        send_mail(
+            'Код подтверждения email',
+            password,
+            'create_profile@yamdb.com',
+            [email],
+            fail_silently=False,
+        )
         user.set_password(password)
         user.save()
         return user

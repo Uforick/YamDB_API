@@ -1,1 +1,7 @@
-from django.core.mail import send_mail
+from . import serializers
+from rest_framework.mixins import (CreateModelMixin, )
+from rest_framework.viewsets import GenericViewSet
+
+
+class UserCreateMixin(CreateModelMixin, GenericViewSet):
+    serializer_class = serializers.EmailForTokenSerialzer
