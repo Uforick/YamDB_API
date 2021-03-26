@@ -1,4 +1,5 @@
 from . import serializers
+from rest_framework.permissions import AllowAny
 from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
 from rest_framework.mixins import (CreateModelMixin, )
@@ -16,6 +17,7 @@ def generate_alphanum_crypt_string():
 
 class UserCreateMixin(CreateModelMixin, GenericViewSet):
     serializer_class = serializers.EmailForTokenSerialzer
+    permission_classes = [AllowAny, ]
 
     def perform_create(self, serializer):
         email = self.request.POST.get('email')
