@@ -30,7 +30,7 @@ class CategoriesViewSet(
 ):
     queryset = Categories.objects.all()
     serializer_class = serializers.CategoriesSerializer
-    permission_classes = []
+    permission_classes = [permissions.IsAdminOrReadOnly]
     lookup_field = 'slug'
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', ]
@@ -44,7 +44,7 @@ class GengresViewSet(
 ):
     queryset = Genres.objects.all()
     serializer_class = serializers.GenresSerializer
-    permission_classes = []
+    permission_classes = [permissions.IsAdminOrReadOnly]
     lookup_field = 'slug'
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', ]
@@ -60,7 +60,7 @@ class TitlesViewSet(
 ):
     queryset = Titles.objects.all()
     serializer_class = serializers.TitlesSerializer
-    permission_classes = []
+    permission_classes = [permissions.IsAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitleFilter
 
