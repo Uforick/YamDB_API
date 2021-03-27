@@ -1,5 +1,5 @@
 from rest_framework import permissions
-from rest_framework.permissions import BasePermission, SAFE_METHODS
+from rest_framework.permissions import SAFE_METHODS, BasePermission
 
 
 class IsAdminOnly(permissions.BasePermission):
@@ -26,49 +26,44 @@ class IsAdminOrReadOnly(permissions.BasePermission):
         )
 
 
-# class IsOwnerOrReadOnly(permissions.BasePermission):
-#     def has_object_permission(self, request, view, obj):
-#         return (
-#             (obj.author == request.user)
-#             or (request.method in permissions.SAFE_METHODS)
-#             or request.user.is_staff
-#         )
-
-
-# class IsOwnerOnly(permissions.BasePermission):
-#     def has_permission(self, request, view, obj):
-#         return obj.author == request.user
-
 class IsOwner(BasePermission):
 
     def has_object_permission(self, request, view, obj):
-        return (request.user and
-                request.user.is_authenticated and
-                obj.author == request.user)
+        return (
+            request.user
+            and request.user.is_authenticated
+            and obj.author == request.user
+        )
 
 
 class IsAdmin(BasePermission):
 
     def has_permission(self, request, view):
-        return (request.user and
-                request.user.is_authenticated and
-                request.user.is_active and
-                request.user.is_admin)
+        return (
+            request.user
+            and request.user.is_authenticated
+            and request.user.is_active
+            and request.user.is_admin
+        )
 
     def has_object_permission(self, request, view, obj):
-        return (request.user and
-                request.user.is_active and
-                request.user.is_authenticated and
-                request.user.is_admin)
+        return (
+            request.user
+            and request.user.is_active
+            and request.user.is_authenticated
+            and request.user.is_admin
+        )
 
 
 class IsModerator(BasePermission):
 
     def has_object_permission(self, request, view, obj):
-        return (request.user and
-                request.user.is_active and
-                request.user.is_authenticated and
-                request.user.is_moderator)
+        return (
+            request.user
+            and request.user.is_active
+            and request.user.is_authenticated
+            and request.user.is_moderator
+        )
 
 
 class ReadOnly(BasePermission):

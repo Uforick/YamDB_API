@@ -1,11 +1,13 @@
-from . import serializers
-from rest_framework.permissions import AllowAny
-from django.contrib.auth.hashers import make_password
-from django.core.mail import send_mail
-from rest_framework.mixins import (CreateModelMixin, )
-from rest_framework.viewsets import GenericViewSet
 import secrets
 import string
+
+from django.contrib.auth.hashers import make_password
+from django.core.mail import send_mail
+from rest_framework.mixins import CreateModelMixin
+from rest_framework.permissions import AllowAny
+from rest_framework.viewsets import GenericViewSet
+
+from . import serializers
 
 
 def generate_alphanum_crypt_string():

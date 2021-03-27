@@ -1,9 +1,8 @@
 from rest_framework import serializers
-from rest_framework.generics import get_object_or_404
 from rest_framework.exceptions import ValidationError
+from rest_framework.generics import get_object_or_404
 
-
-from .models import Categories, Genres, Titles, User, Review, Comment
+from .models import Categories, Comment, Genres, Review, Titles, User
 
 
 class CategoriesSerializer(serializers.ModelSerializer):
@@ -117,14 +116,14 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        read_only=True, slug_field="username", many=False
+        read_only=True, slug_field='username', many=False
     )
 
     class Meta:
         fields = (
-            "id",
-            "text",
-            "author",
-            "pub_date",
+            'id',
+            'text',
+            'author',
+            'pub_date',
         )
         model = Comment

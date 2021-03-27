@@ -1,21 +1,20 @@
+from django.db.models import Avg
 from django_filters import CharFilter, FilterSet
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework import exceptions
-from rest_framework.response import Response
-from rest_framework import filters, permissions, status
-from rest_framework.pagination import PageNumberPagination
+from rest_framework import exceptions, filters, permissions
 from rest_framework.decorators import action
-from django.db.models import Avg
+from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
                                    ListModelMixin, RetrieveModelMixin,
                                    UpdateModelMixin)
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
-from rest_framework.generics import get_object_or_404
 
-from . import serializers, permissions
-from .models import Categories, Genres, Titles, User, Review, Comment
-from .permissions import ReadOnly, IsAdmin, IsModerator, IsOwner
+from . import permissions, serializers
+from .models import Categories, Comment, Genres, Review, Titles, User
+from .permissions import IsAdmin, IsModerator, IsOwner, ReadOnly
 
 
 class TitleFilter(FilterSet):
@@ -70,6 +69,7 @@ class TitlesViewSet(
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitleFilter
 
+
 class UsersViewSet(
     CreateModelMixin,
     DestroyModelMixin,
@@ -110,15 +110,18 @@ class ReviewViewSet(ModelViewSet):
 
     def get_queryset(self):
         queryset = Review.objects.all()
-        title = get_object_or_404(Titles, pk=self.kwargs["title_id"])
+        title = get_object_or_404(Titles, pk=self.kwargs['title_id'])
         if title is not None:
-            queryset = Review.objects.filter(title=self.kwargs.get("title_id"))
+            queryset = Review.objects.filter(title=self.kwargs.get('title_id'))
         return queryset
 
     def perform_create(self, serializer):
         title = get_object_or_404(Titles, pk=self.kwargs['title_id'])
 
-        if Review.objects.filter(author=self.request.user, title=title).exists():
+        if Review.objects.filter(
+            author=self.request.user,
+            title=title
+        ).exists():
             raise exceptions.ValidationError('Вы уже оставили отзыв')
         serializer.save(author=self.request.user, title=title)
 
@@ -144,14 +147,13 @@ class CommentViewSet(ModelViewSet):
 
     def get_queryset(self):
         queryset = Comment.objects.all()
-        review = get_object_or_404(Review, pk=self.kwargs["review_id"])
+        review = get_object_or_404(Review, pk=self.kwargs['review_id'])
         if review is not None:
             queryset = Comment.objects.filter(
-                review=self.kwargs.get("review_id")
+                review=self.kwargs.get('review_id')
             )
         return queryset
 
     def perform_create(self, serializer):
-        review = get_object_or_404(Review, id=self.kwargs["review_id"])
+        review = get_object_or_404(Review, id=self.kwargs['review_id'])
         serializer.save(author=self.request.user, review=review)
-
