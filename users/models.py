@@ -55,8 +55,16 @@ class CustomUserManager(BaseUserManager):
 
 
 class CustomUser(AbstractUser):
+    class Roles(models.TextChoices):
+        USR = 'user', ('user')
+        MOD = 'moderator', ('moderator')
+        ADM = 'admin', ('admin')
     bio = models.TextField(blank=True, null=True)
-    role = models.CharField(max_length=30, default='user')
+    role = models.CharField(max_length=30,
+                            choices=Roles.choices,
+                            default=Roles.USR,
+                            verbose_name='Роль'
+                            )
     email = models.EmailField(('email address'), unique=True)
     username = models.CharField(
         max_length=30,
@@ -64,10 +72,22 @@ class CustomUser(AbstractUser):
         # blank=True,
         unique=True,
     )
-    is_staff = models.BooleanField(default=False)
+    # is_staff = models.BooleanField(default=False)
     first_name = models.CharField(max_length=30, null=True, blank=True)
     last_name = models.CharField(max_length=30, null=True, blank=True)
     password = models.CharField(max_length=30, null=True, blank=True)
+
+    @property
+    def is_admin(self):
+        return self.role == self.Roles.ADM
+
+    @property
+    def is_moderator(self):
+        return self.role == self.Roles.MOD
+
+    @property
+    def is_user(self):
+        return self.role == self.Roles.USR
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
