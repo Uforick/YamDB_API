@@ -1,7 +1,9 @@
 from django_filters import CharFilter, FilterSet
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework import filters, permissions
-from rest_framework.permissions import IsAdminUser
+from rest_framework.decorators import action
 from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
                                    ListModelMixin, RetrieveModelMixin,
                                    UpdateModelMixin)
@@ -81,19 +83,17 @@ class UsersViewSet(
     filterset_fields = ['username', ]
 
     def perform_update(self, serializer):
-
         serializer.save()
 
+    @action(
+        detail=False,
+        methods=['get', 'patch'],
+        permission_classes=[IsAuthenticated]
+    )
+    def me(self, request):
+        me = get_object_or_404(User, username=request.user.username)
+        serializer = serializers.MeSerializer(me, data=request.data,)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(data=request.data)
 
-# class MeViewSet(
-#     ListModelMixin,
-#     GenericViewSet,
-#     RetrieveModelMixin,
-#     UpdateModelMixin
-# ):
-#     serializer_class = serializers.UserSerializer
-#     # permission_classes = [permissions.IsOwnerOnly, ]
-
-#     def get_queryset(self):
-#         queryset = get_object_or_404(User, pk=self.kwargs.get('username'))
-#         return queryset
+        return Response(serializer.data)
