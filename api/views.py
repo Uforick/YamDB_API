@@ -84,7 +84,6 @@ class UsersViewSet(
 
     def perform_update(self, serializer):
         serializer.save()
-    
 
     @action(
         detail=False,
@@ -92,25 +91,9 @@ class UsersViewSet(
         permission_classes=[IsAuthenticated]
     )
     def me(self, request):
-        # queryset = get_object_or_404(User, username=self.kwargs.get('username'))
         me = get_object_or_404(User, username=request.user.username)
         serializer = serializers.MeSerializer(me, data=request.data,)
         serializer.is_valid(raise_exception=True)
         serializer.save(data=request.data)
 
         return Response(serializer.data)
-
-
-
-# class MeViewSet(
-#     ListModelMixin,
-#     GenericViewSet,
-#     RetrieveModelMixin,
-#     UpdateModelMixin
-# ):
-#     serializer_class = serializers.UserSerializer
-#     # permission_classes = [permissions.IsOwnerOnly, ]
-
-#     def get_queryset(self):
-#         queryset = get_object_or_404(User, pk=self.kwargs.get('username'))
-#         return queryset
