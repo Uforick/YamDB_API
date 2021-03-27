@@ -67,3 +67,18 @@ class UserSerializer(serializers.ModelSerializer):
             'role'
         )
         model = User
+
+
+class MeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = (
+            'first_name',
+            'last_name',
+            'username',
+            'bio',
+            'email',
+            'role'
+        )
+        read_only_fields = ('email', 'role')
+        model = User
