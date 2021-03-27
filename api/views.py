@@ -127,11 +127,6 @@ class ReviewViewSet(ModelViewSet):
         title.rating = avg_score['score__avg']
         title.save(update_fields=['rating'])
 
-    def delete(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
     def perform_update(self, serializer):
         title = get_object_or_404(Titles, pk=self.kwargs['title_id'])
         serializer.save(author=self.request.user, title=title)
@@ -160,7 +155,3 @@ class CommentViewSet(ModelViewSet):
         review = get_object_or_404(Review, id=self.kwargs["review_id"])
         serializer.save(author=self.request.user, review=review)
 
-    def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
