@@ -66,7 +66,6 @@ class IsModerator(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return (request.user and
-                request.user.is_authenticated and
                 request.user.is_active and
                 request.user.is_authenticated and
                 request.user.is_moderator)
