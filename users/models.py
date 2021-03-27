@@ -69,10 +69,8 @@ class CustomUser(AbstractUser):
     username = models.CharField(
         max_length=30,
         null=True,
-        # blank=True,
         unique=True,
     )
-    # is_staff = models.BooleanField(default=False)
     first_name = models.CharField(max_length=30, null=True, blank=True)
     last_name = models.CharField(max_length=30, null=True, blank=True)
     password = models.CharField(max_length=30, null=True, blank=True)
