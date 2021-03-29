@@ -1,4 +1,3 @@
-from rest_framework.exceptions import ValidationError
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 
@@ -107,7 +106,7 @@ class ReviewSerializer(serializers.ModelSerializer):
                     title=title,
                     author=request.user
             ).exists():
-                raise ValidationError('Only one review is allowed')
+                raise serializers.ValidationError('Only one review is allowed')
         return data
 
     class Meta:
