@@ -82,7 +82,7 @@ class UsersViewSet(
     serializer_class = serializers.UserSerializer
     permission_classes = [permissions.IsAdminOnly, ]
     lookup_field = 'username'
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend]  
     filterset_fields = ['username', ]
 
     def perform_update(self, serializer):
@@ -109,31 +109,23 @@ class ReviewViewSet(ModelViewSet):
                           IsOwner | IsAdmin | IsModerator | ReadOnly,)
 
     def get_queryset(self):
-        queryset = Review.objects.all()
         title = get_object_or_404(Titles, pk=self.kwargs["title_id"])
-        if title is not None:
-            queryset = Review.objects.filter(title=self.kwargs.get("title_id"))
-        return queryset
+        return title.reviews.all()
+
+    def avg_score(self, title):
+        avg_score = Review.objects.filter(title=title).aggregate(Avg('score'))
+        title.rating = avg_score['score__avg']
+        title.save(update_fields=['rating'])
 
     def perform_create(self, serializer):
         title = get_object_or_404(Titles, pk=self.kwargs['title_id'])
-
-        if Review.objects.filter(author=self.request.user, title=title).exists():
-            raise exceptions.ValidationError('Вы уже оставили отзыв')
         serializer.save(author=self.request.user, title=title)
-
-        avg_score = Review.objects.filter(title=title).aggregate(Avg('score'))
-
-        title.rating = avg_score['score__avg']
-        title.save(update_fields=['rating'])
+        self.avg_score(title)
 
     def perform_update(self, serializer):
         title = get_object_or_404(Titles, pk=self.kwargs['title_id'])
         serializer.save(author=self.request.user, title=title)
-        avg_score = Review.objects.filter(title=title).aggregate(Avg('score'))
-
-        title.rating = avg_score['score__avg']
-        title.save(update_fields=['rating'])
+        self.avg_score(title)
 
 
 class CommentViewSet(ModelViewSet):
@@ -143,13 +135,8 @@ class CommentViewSet(ModelViewSet):
                           IsOwner | IsAdmin | IsModerator | ReadOnly,)
 
     def get_queryset(self):
-        queryset = Comment.objects.all()
         review = get_object_or_404(Review, pk=self.kwargs["review_id"])
-        if review is not None:
-            queryset = Comment.objects.filter(
-                review=self.kwargs.get("review_id")
-            )
-        return queryset
+        return review.comments.all()
 
     def perform_create(self, serializer):
         review = get_object_or_404(Review, id=self.kwargs["review_id"])
