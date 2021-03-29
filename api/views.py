@@ -48,7 +48,6 @@ class CategoryViewSet(CustomViewSet):
 class GenreViewSet(CategoryViewSet):
     queryset = Genre.objects.all()
     serializer_class = serializers.GenreSerializer
-    permission_classes = [permissions.IsAdminOrReadOnly]
 
 
 class TitleViewSet(CustomViewSet, RetrieveModelMixin, UpdateModelMixin):
