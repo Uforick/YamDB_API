@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from . import permissions, serializers
-from .models import Categories, Comment, Genres, Review, Titles, User
+from .models import Category, Comment, Genre, Review, Title, User
 from .permissions import IsAdmin, IsModerator, IsOwner, ReadOnly
 
 
@@ -23,61 +23,43 @@ class TitleFilter(FilterSet):
     name = CharFilter(field_name='name', lookup_expr='icontains')
 
     class Meta:
-        model = Titles
+        model = Title
         fields = ['year']
 
 
-class CategoriesViewSet(
+class CustomViewSet(
     CreateModelMixin,
     DestroyModelMixin,
     ListModelMixin,
     GenericViewSet,
 ):
-    queryset = Categories.objects.all()
-    serializer_class = serializers.CategoriesSerializer
+    pass
+
+
+class CategoryViewSet(CustomViewSet):
+    queryset = Category.objects.all()
+    serializer_class = serializers.CategorySerializer
     permission_classes = [permissions.IsAdminOrReadOnly]
     lookup_field = 'slug'
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', ]
 
 
-class GengresViewSet(
-    CreateModelMixin,
-    DestroyModelMixin,
-    ListModelMixin,
-    GenericViewSet,
-):
-    queryset = Genres.objects.all()
-    serializer_class = serializers.GenresSerializer
+class GenreViewSet(CategoryViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = serializers.GenreSerializer
     permission_classes = [permissions.IsAdminOrReadOnly]
-    lookup_field = 'slug'
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['name', ]
 
 
-class TitlesViewSet(
-    CreateModelMixin,
-    DestroyModelMixin,
-    ListModelMixin,
-    GenericViewSet,
-    RetrieveModelMixin,
-    UpdateModelMixin,
-):
-    queryset = Titles.objects.all()
-    serializer_class = serializers.TitlesSerializer
+class TitleViewSet(CustomViewSet, RetrieveModelMixin, UpdateModelMixin):
+    queryset = Title.objects.all()
+    serializer_class = serializers.TitleSerializer
     permission_classes = [permissions.IsAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitleFilter
 
 
-class UsersViewSet(
-    CreateModelMixin,
-    DestroyModelMixin,
-    ListModelMixin,
-    GenericViewSet,
-    RetrieveModelMixin,
-    UpdateModelMixin
-):
+class UsersViewSet(CustomViewSet, RetrieveModelMixin, UpdateModelMixin):
     queryset = User.objects.all()
     serializer_class = serializers.UserSerializer
     permission_classes = [permissions.IsAdminOnly, ]
@@ -110,13 +92,13 @@ class ReviewViewSet(ModelViewSet):
 
     def get_queryset(self):
         queryset = Review.objects.all()
-        title = get_object_or_404(Titles, pk=self.kwargs['title_id'])
+        title = get_object_or_404(Title, pk=self.kwargs['title_id'])
         if title is not None:
             queryset = Review.objects.filter(title=self.kwargs.get('title_id'))
         return queryset
 
     def perform_create(self, serializer):
-        title = get_object_or_404(Titles, pk=self.kwargs['title_id'])
+        title = get_object_or_404(Title, pk=self.kwargs['title_id'])
 
         if Review.objects.filter(
             author=self.request.user,
@@ -131,7 +113,7 @@ class ReviewViewSet(ModelViewSet):
         title.save(update_fields=['rating'])
 
     def perform_update(self, serializer):
-        title = get_object_or_404(Titles, pk=self.kwargs['title_id'])
+        title = get_object_or_404(Title, pk=self.kwargs['title_id'])
         serializer.save(author=self.request.user, title=title)
         avg_score = Review.objects.filter(title=title).aggregate(Avg('score'))
 
