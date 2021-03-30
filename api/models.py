@@ -75,7 +75,7 @@ class Review(models.Model):
         User, on_delete=models.CASCADE, related_name='reviews',
         verbose_name='Автор'
     )
-    score = models.IntegerField(
+    score = models.PositiveSmallIntegerField(
         default=1,
         validators=[MaxValueValidator(10), MinValueValidator(1)],
         verbose_name='Оценка',
@@ -92,13 +92,14 @@ class Review(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Отзыв'
-        verbose_name_plural = 'Отзывы'
-        unique_together = (
-            'author',
-            'title',
-        )
-        ordering = ('-pub_date',)
+        verbose_name = "Отзыв"
+        verbose_name_plural = "Отзывы"
+        constraints = [
+            models.UniqueConstraint(fields=['author', 'title'],
+                                    name='unique review')
+        ]
+        ordering = ("-pub_date",)
+
 
     def __str__(self):
         return f'{self.author} - {self.title}'
@@ -122,6 +123,7 @@ class Comment(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Комментарий'
-        verbose_name_plural = 'Комментарии'
-        ordering = ('-pub_date',)
+        verbose_name = "Комментарий"
+        verbose_name_plural = "Комментарии"
+        ordering = ("-pub_date",)
+
