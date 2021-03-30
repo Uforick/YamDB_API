@@ -35,27 +35,6 @@ class TitleSerializer(serializers.ModelSerializer):
         model = Title
 
 
-class UserSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        fields = (
-            'first_name',
-            'last_name',
-            'username',
-            'bio',
-            'email',
-            'role'
-        )
-        model = User
-
-
-class MeSerializer(UserSerializer):
-
-    class Meta(UserSerializer.Meta):
-        read_only_fields = ('email', 'role')
-
-
-
 class ReviewSerializer(serializers.ModelSerializer):
     title = serializers.SlugRelatedField(
         slug_field='name',

@@ -1,5 +1,6 @@
 import secrets
 import string
+from rest_framework.response import Response
 
 from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
@@ -9,6 +10,23 @@ from rest_framework.permissions import AllowAny
 from rest_framework.viewsets import GenericViewSet
 
 from . import serializers
+
+
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import  permissions
+from rest_framework.decorators import action
+from rest_framework.generics import get_object_or_404
+from rest_framework.mixins import (CreateModelMixin,
+                                   RetrieveModelMixin,
+                                   UpdateModelMixin)
+
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import GenericViewSet
+
+from . import permissions, serializers
+from .models import CustomUser as User
+from api.views import CustomViewSet
+
 
 
 def generate_alphanum_crypt_string():
@@ -34,3 +52,28 @@ class UserCreateMixin(CreateModelMixin, GenericViewSet):
             fail_silently=False,
         )
         serializer.save(password=hashed_password, email=email, username=email)
+
+
+class UsersViewSet(CustomViewSet, RetrieveModelMixin, UpdateModelMixin):
+    queryset = User.objects.all()
+    serializer_class = serializers.UserSerializer
+    permission_classes = [permissions.IsAdminOnly, ]
+    lookup_field = 'username'
+    filter_backends = [DjangoFilterBackend]  
+    filterset_fields = ['username', ]
+
+    def perform_update(self, serializer):
+        serializer.save()
+
+    @action(
+        detail=False,
+        methods=['get', 'patch'],
+        permission_classes=[IsAuthenticated]
+    )
+    def me(self, request):
+        me = get_object_or_404(User, username=request.user.username)
+        serializer = serializers.MeSerializer(me, data=request.data,)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(data=request.data)
+
+        return Response(serializer.data)

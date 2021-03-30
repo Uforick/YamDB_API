@@ -9,7 +9,6 @@ from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
                                    UpdateModelMixin)
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from . import permissions, serializers
@@ -57,31 +56,6 @@ class TitleViewSet(CustomViewSet, RetrieveModelMixin, UpdateModelMixin):
     permission_classes = [permissions.IsAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitleFilter
-
-
-class UsersViewSet(CustomViewSet, RetrieveModelMixin, UpdateModelMixin):
-    queryset = User.objects.all()
-    serializer_class = serializers.UserSerializer
-    permission_classes = [permissions.IsAdminOnly, ]
-    lookup_field = 'username'
-    filter_backends = [DjangoFilterBackend]  
-    filterset_fields = ['username', ]
-
-    def perform_update(self, serializer):
-        serializer.save()
-
-    @action(
-        detail=False,
-        methods=['get', 'patch'],
-        permission_classes=[IsAuthenticated]
-    )
-    def me(self, request):
-        me = get_object_or_404(User, username=request.user.username)
-        serializer = serializers.MeSerializer(me, data=request.data,)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(data=request.data)
-
-        return Response(serializer.data)
 
 
 class ReviewViewSet(ModelViewSet):
