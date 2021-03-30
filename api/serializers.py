@@ -1,89 +1,38 @@
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 
-from .models import Categories, Comment, Genres, Review, Titles, User
+from .fields import TitleNestedField
+from .models import Category, Comment, Genre, Review, Title
 
 
-class CategoriesSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        fields = ('name', 'slug')
-        model = Categories
-
-
-class GenresSerializer(serializers.ModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = ('name', 'slug')
-        model = Genres
+        model = Category
 
 
-class GenreField(serializers.SlugRelatedField):
-    def to_internal_value(self, data):
-        try:
-            return self.get_queryset().get(**{self.slug_field: data})
-        except (TypeError, ValueError):
-            self.fail('invalid')
+class GenreSerializer(serializers.ModelSerializer):
 
-    def to_representation(self, value):
-        return GenresSerializer(value).data
+    class Meta:
+        fields = ('name', 'slug')
+        model = Genre
 
 
-class CategoryField(serializers.SlugRelatedField):
-    def to_internal_value(self, data):
-        try:
-            return self.get_queryset().get(**{self.slug_field: data})
-        except (TypeError, ValueError):
-            self.fail('invalid')
-
-    def to_representation(self, value):
-        return CategoriesSerializer(value).data
-
-
-class TitlesSerializer(serializers.ModelSerializer):
-    genre = GenreField(
+class TitleSerializer(serializers.ModelSerializer):
+    genre = TitleNestedField(
         many=True,
         slug_field='slug',
-        queryset=Genres.objects.all()
+        queryset=Genre.objects.all(),
     )
-    category = CategoryField(
+    category = TitleNestedField(
         slug_field='slug',
-        queryset=Categories.objects.all()
+        queryset=Category.objects.all(),
     )
 
     class Meta:
         fields = '__all__'
-        model = Titles
-
-
-class UserSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        fields = (
-            'first_name',
-            'last_name',
-            'username',
-            'bio',
-            'email',
-            'role'
-        )
-        model = User
-
-
-class MeSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        fields = (
-            'first_name',
-            'last_name',
-            'username',
-            'bio',
-            'email',
-            'role'
-        )
-        read_only_fields = ('email', 'role')
-        model = User
+        model = Title
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -100,13 +49,13 @@ class ReviewSerializer(serializers.ModelSerializer):
     def validate(self, data):
         request = self.context['request']
         title_id = self.context['view'].kwargs.get('title_id')
-        title = get_object_or_404(Titles, pk=title_id)
+        title = get_object_or_404(Title, pk=title_id)
         if request.method == 'POST':
             if Review.objects.filter(
                     title=title,
                     author=request.user
             ).exists():
-                raise ValidationError('Only one review is allowed')
+                raise serializers.ValidationError('Only one review is allowed')
         return data
 
     class Meta:
