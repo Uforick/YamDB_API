@@ -18,7 +18,7 @@ class CustomUserManager(BaseUserManager):
         username=None,
         first_name=None,
         last_name=None,
-        bio=None
+        bio=None,
     ):
         user = self.model(
             email=email,
@@ -27,7 +27,7 @@ class CustomUserManager(BaseUserManager):
             username=username,
             first_name=first_name,
             last_name=last_name,
-            bio=bio
+            bio=bio,
         )
         user.set_password(password)
         user.is_staff = False
@@ -43,7 +43,7 @@ class CustomUserManager(BaseUserManager):
         username=None,
         first_name=None,
         last_name=None,
-        bio=None
+        bio=None,
     ):
         user = self.create_user(
             email=email,
@@ -52,7 +52,7 @@ class CustomUserManager(BaseUserManager):
             username=username,
             first_name=first_name,
             last_name=last_name,
-            bio=bio
+            bio=bio,
         )
         user.is_active = True
         user.is_staff = True
@@ -63,16 +63,17 @@ class CustomUserManager(BaseUserManager):
 
 class CustomUser(AbstractUser):
     bio = models.TextField(blank=True, null=True)
-    role = models.CharField(max_length=30,
-                            choices=Roles.choices,
-                            default=Roles.USR,
-                            verbose_name='Роль'
-                            )
+    role = models.CharField(
+        max_length=30,
+        choices=Roles.choices,
+        default=Roles.USR,
+        verbose_name='Роль',
+    )
     email = models.EmailField(('email address'), unique=True)
     username = models.CharField(
         max_length=30,
         unique=True,
-        default=email
+        default=email,
     )
     first_name = models.CharField(max_length=30, null=True, blank=True)
     last_name = models.CharField(max_length=30, null=True, blank=True)
