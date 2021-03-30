@@ -2,13 +2,17 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+class Roles(models.TextChoices):
+    USR = 'user', ('user')
+    MOD = 'moderator', ('moderator')
+    ADM = 'admin', ('admin')
 
 class CustomUserManager(BaseUserManager):
     def create_user(
         self,
         email,
         password=None,
-        role=None,
+        role=Roles.USR,
         username=None,
         first_name=None,
         last_name=None,
@@ -33,6 +37,7 @@ class CustomUserManager(BaseUserManager):
         self,
         email,
         password=None,
+        role=Roles.ADM,
         username=None,
         first_name=None,
         last_name=None,
@@ -41,7 +46,7 @@ class CustomUserManager(BaseUserManager):
         user = self.create_user(
             email=email,
             password=password,
-            role='admin',
+            role=role,
             username=username,
             first_name=first_name,
             last_name=last_name,
@@ -55,10 +60,6 @@ class CustomUserManager(BaseUserManager):
 
 
 class CustomUser(AbstractUser):
-    class Roles(models.TextChoices):
-        USR = 'user', ('user')
-        MOD = 'moderator', ('moderator')
-        ADM = 'admin', ('admin')
     bio = models.TextField(blank=True, null=True)
     role = models.CharField(max_length=30,
                             choices=Roles.choices,
@@ -68,8 +69,8 @@ class CustomUser(AbstractUser):
     email = models.EmailField(('email address'), unique=True)
     username = models.CharField(
         max_length=30,
-        null=True,
         unique=True,
+        default=email
     )
     first_name = models.CharField(max_length=30, null=True, blank=True)
     last_name = models.CharField(max_length=30, null=True, blank=True)

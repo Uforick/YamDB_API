@@ -110,3 +110,5 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=10),
 }
+
+CORE_EMAIL_ADRESS = 'create_profile@yamdb.com'

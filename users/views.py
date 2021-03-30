@@ -3,6 +3,7 @@ import string
 
 from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
+from django.conf import settings
 from rest_framework.mixins import CreateModelMixin
 from rest_framework.permissions import AllowAny
 from rest_framework.viewsets import GenericViewSet
@@ -28,7 +29,7 @@ class UserCreateMixin(CreateModelMixin, GenericViewSet):
         send_mail(
             'Код подтверждения email',
             rand_string,
-            'create_profile@yamdb.com',
+            settings.CORE_EMAIL_ADRESS,
             [email],
             fail_silently=False,
         )
