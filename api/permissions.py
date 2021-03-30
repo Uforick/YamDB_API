@@ -36,7 +36,6 @@ class IsOwner(BasePermission):
         ])
 
 
-
 class IsAdmin(BasePermission):
 
     def has_permission(self, request, view):
@@ -46,7 +45,6 @@ class IsAdmin(BasePermission):
             request.user.is_active,
             request.user.is_admin
         ])
-
 
     def has_object_permission(self, request, view, obj):
         return all([

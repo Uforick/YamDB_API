@@ -2,10 +2,12 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+
 class Roles(models.TextChoices):
     USR = 'user', ('user')
     MOD = 'moderator', ('moderator')
     ADM = 'admin', ('admin')
+
 
 class CustomUserManager(BaseUserManager):
     def create_user(

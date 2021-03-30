@@ -27,5 +27,3 @@ class MeSerializer(UserSerializer):
 
     class Meta(UserSerializer.Meta):
         read_only_fields = ('email', 'role')
-
-

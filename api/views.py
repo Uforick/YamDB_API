@@ -1,8 +1,7 @@
 from django.db.models import Avg
 from django_filters import CharFilter, FilterSet
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import exceptions, filters, permissions
-from rest_framework.decorators import action
+from rest_framework import filters, permissions
 from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
                                    ListModelMixin, RetrieveModelMixin,
@@ -12,7 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from . import permissions, serializers
-from .models import Category, Comment, Genre, Review, Title, User
+from .models import Category, Genre, Review, Title
 from .permissions import IsAdmin, IsModerator, IsOwner, ReadOnly
 
 
@@ -100,9 +99,8 @@ class CommentViewSet(ModelViewSet):
                           IsOwner | IsAdmin | IsModerator | ReadOnly,)
 
     def get_queryset(self):
-        review = get_object_or_404(Review, pk=self.kwargs["review_id"])
+        review = get_object_or_404(Review, pk=self.kwargs['review_id'])
         return review.comments.all()
-
 
     def perform_create(self, serializer):
         review = get_object_or_404(Review, id=self.kwargs['review_id'])

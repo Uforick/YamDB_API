@@ -2,8 +2,7 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from .views import UserCreateMixin
-from .views import UsersViewSet
+from .views import UserCreateMixin, UsersViewSet
 
 router = DefaultRouter()
 router.register(

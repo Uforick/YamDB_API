@@ -117,14 +117,13 @@ class Review(models.Model):
     )
 
     class Meta:
-        verbose_name = "Отзыв"
-        verbose_name_plural = "Отзывы"
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
         constraints = [
             models.UniqueConstraint(fields=['author', 'title'],
                                     name='unique review')
         ]
-        ordering = ("-pub_date",)
-
+        ordering = ('-pub_date',)
 
     def __str__(self):
         return f'{self.author} - {self.title}'
@@ -148,7 +147,6 @@ class Comment(models.Model):
     )
 
     class Meta:
-        verbose_name = "Комментарий"
-        verbose_name_plural = "Комментарии"
-        ordering = ("-pub_date",)
-
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+        ordering = ('-pub_date',)
