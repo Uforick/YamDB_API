@@ -43,17 +43,17 @@ class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         slug_field='username',
         read_only=True,
-        default=serializers.CurrentUserDefault()
+        default=serializers.CurrentUserDefault(),
     )
 
     def validate(self, data):
         request = self.context['request']
-        title_id = self.context['view'].kwargs.get('title_id')
+        title_id = request.parser_context['kwargs']['title_id']
         title = get_object_or_404(Title, pk=title_id)
         if request.method == 'POST':
             if Review.objects.filter(
-                    title=title,
-                    author=request.user
+                title=title,
+                author=request.user,
             ).exists():
                 raise serializers.ValidationError('Only one review is allowed')
         return data

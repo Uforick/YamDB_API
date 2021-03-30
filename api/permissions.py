@@ -9,7 +9,7 @@ class IsAdminOnly(permissions.BasePermission):
             and any([
                 request.user.is_staff,
                 request.user.is_superuser,
-                request.user.is_admin
+                request.user.is_admin,
             ])
         ])
 
@@ -22,7 +22,7 @@ class IsAdminOrReadOnly(permissions.BasePermission):
             request.user.is_staff,
             request.user.is_superuser,
             request.user.is_admin,
-            request.method in permissions.SAFE_METHODS
+            request.method in permissions.SAFE_METHODS,
         ])
 
 
@@ -32,26 +32,30 @@ class IsOwner(BasePermission):
         return all([
             request.user,
             request.user.is_authenticated,
-            obj.author == request.user
+            obj.author == request.user,
         ])
 
 
 class IsAdmin(BasePermission):
 
     def has_permission(self, request, view):
+        if request.user.is_anonymous:
+            return request.method in permissions.SAFE_METHODS
         return all([
             request.user,
             request.user.is_authenticated,
             request.user.is_active,
-            request.user.is_admin
+            request.user.is_admin,
         ])
 
     def has_object_permission(self, request, view, obj):
+        if request.user.is_anonymous:
+            return request.method in permissions.SAFE_METHODS
         return all([
             request.user,
             request.user.is_active,
             request.user.is_authenticated,
-            request.user.is_admin
+            request.user.is_admin,
         ])
 
 
@@ -62,7 +66,7 @@ class IsModerator(BasePermission):
             request.user,
             request.user.is_active,
             request.user.is_authenticated,
-            request.user.is_moderator
+            request.user.is_moderator,
         ])
 
 
