@@ -11,6 +11,6 @@ class TitleNestedField(SlugRelatedField):
     def to_representation(self, value):
         out = {
             'name': value.name,
-            'slug': value.slug
+            'slug': value.slug,
         }
         return out

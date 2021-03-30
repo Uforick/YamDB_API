@@ -1,28 +1,22 @@
 from django.db.models import Avg
-from django_filters import CharFilter, FilterSet
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, permissions
+from rest_framework import exceptions, filters
+from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
-from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
-                                   ListModelMixin, RetrieveModelMixin,
-                                   UpdateModelMixin)
+from rest_framework.mixins import (
+    CreateModelMixin, DestroyModelMixin, ListModelMixin, RetrieveModelMixin,
+    UpdateModelMixin,
+)
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
-from . import permissions, serializers
-from .models import Category, Genre, Review, Title
-from .permissions import IsAdmin, IsModerator, IsOwner, ReadOnly
-
-
-class TitleFilter(FilterSet):
-    genre = CharFilter(field_name='genre__slug', lookup_expr='icontains')
-    category = CharFilter(field_name='category__slug', lookup_expr='icontains')
-    name = CharFilter(field_name='name', lookup_expr='icontains')
-
-    class Meta:
-        model = Title
-        fields = ['year']
+from . import serializers
+from .filters import TitleFilter
+from .models import Category, Comment, Genre, Review, Title, User
+from .permissions import (
+    IsAdmin, IsAdminOnly, IsAdminOrReadOnly, IsModerator, IsOwner, ReadOnly,
+)
 
 
 class CustomViewSet(
@@ -37,7 +31,7 @@ class CustomViewSet(
 class CategoryViewSet(CustomViewSet):
     queryset = Category.objects.all()
     serializer_class = serializers.CategorySerializer
-    permission_classes = [permissions.IsAdminOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
     lookup_field = 'slug'
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', ]
@@ -46,13 +40,21 @@ class CategoryViewSet(CustomViewSet):
 class GenreViewSet(CategoryViewSet):
     queryset = Genre.objects.all()
     serializer_class = serializers.GenreSerializer
-    permission_classes = [permissions.IsAdminOrReadOnly]
 
 
 class TitleViewSet(CustomViewSet, RetrieveModelMixin, UpdateModelMixin):
     queryset = Title.objects.all()
     serializer_class = serializers.TitleSerializer
-    permission_classes = [permissions.IsAdminOrReadOnly]
+    permission_classes = [IsAdminOrReadOnly]
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = TitleFilter
+
+
+class UsersViewSet(CustomViewSet, RetrieveModelMixin, UpdateModelMixin):
+    queryset = User.objects.all()
+    serializer_class = serializers.UserSerializer
+    permission_classes = [IsAdminOnly, ]
+    lookup_field = 'username'
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitleFilter
 
@@ -82,7 +84,6 @@ class ReviewViewSet(ModelViewSet):
 
     def perform_update(self, serializer):
         title = get_object_or_404(Title, pk=self.kwargs['title_id'])
-
         serializer.save(author=self.request.user, title=title)
         self.avg_score(title)
 
