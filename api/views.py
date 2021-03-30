@@ -15,7 +15,7 @@ from . import serializers
 from .filters import TitleFilter
 from .models import Category, Comment, Genre, Review, Title, User
 from .permissions import (
-    IsAdmin, IsAdminOnly, IsAdminOrReadOnly, IsModerator, IsOwner, ReadOnly,
+    IsAdmin, IsAdminOrReadOnly, IsModerator, IsOwner, ReadOnly,
 )
 
 
@@ -46,15 +46,6 @@ class TitleViewSet(CustomViewSet, RetrieveModelMixin, UpdateModelMixin):
     queryset = Title.objects.all()
     serializer_class = serializers.TitleSerializer
     permission_classes = [IsAdminOrReadOnly]
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = TitleFilter
-
-
-class UsersViewSet(CustomViewSet, RetrieveModelMixin, UpdateModelMixin):
-    queryset = User.objects.all()
-    serializer_class = serializers.UserSerializer
-    permission_classes = [IsAdminOnly, ]
-    lookup_field = 'username'
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitleFilter
 
