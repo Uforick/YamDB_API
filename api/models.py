@@ -1,20 +1,18 @@
 import datetime
 
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.utils.translation import gettext_lazy as _
 from django.db import models
-from rest_framework import serializers
 
 
 def validate_year(value):
     max_year = datetime.date.today().year + 10
+    params = {'value': max_year}
+    message = _('Введите год меньше, чем %(value)s')
     if value > max_year:
-        raise serializers.ValidationError(
-            ('Even the biggest film studios '
-             'can`t see that far into the future. '
-             'Try a year earlier than %(value)s '),
-            params={'value': max_year},
-        )
+        raise ValidationError(message=message, params=params)
 
 
 User = get_user_model()
@@ -25,8 +23,8 @@ class Category(models.Model):
     slug = models.SlugField(max_length=30, unique=True)
 
     class Meta:
-        verbose_name = 'Категория'
-        verbose_name_plural = 'Категории'
+        verbose_name = _('Категория')
+        verbose_name_plural = _('Категории')
         ordering = ('id',)
 
     def __str__(self):
@@ -44,8 +42,8 @@ class Genre(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Жанр'
-        verbose_name_plural = 'Жанры'
+        verbose_name = _('Жанр')
+        verbose_name_plural = _('Жанры')
         ordering = ('id',)
 
     def __str__(self):
@@ -86,8 +84,8 @@ class Title(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Произведение'
-        verbose_name_plural = 'Произведения '
+        verbose_name = _('Произведение')
+        verbose_name_plural = _('Произведения')
         ordering = ('id',)
 
     def __str__(self):
