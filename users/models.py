@@ -78,15 +78,15 @@ class CustomUser(AbstractUser):
 
     @property
     def is_admin(self):
-        return self.role == self.Roles.ADM
+        return self.role == Roles.ADM
 
     @property
     def is_moderator(self):
-        return self.role == self.Roles.MOD
+        return self.role == Roles.MOD
 
     @property
     def is_user(self):
-        return self.role == self.Roles.USR
+        return self.role == Roles.USR
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
