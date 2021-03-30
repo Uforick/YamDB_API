@@ -1,25 +1,15 @@
-import datetime
-
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.utils.translation import gettext_lazy as _
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
-
-def validate_year(value):
-    max_year = datetime.date.today().year + 10
-    params = {'value': max_year}
-    message = _('Введите год меньше, чем %(value)s')
-    if value > max_year:
-        raise ValidationError(message=message, params=params)
-
+from .validators import validate_year
 
 User = get_user_model()
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=200, verbose_name=_('Название'))
     slug = models.SlugField(max_length=30, unique=True)
 
     class Meta:
@@ -34,6 +24,7 @@ class Category(models.Model):
 class Genre(models.Model):
     name = models.CharField(
         max_length=200,
+        verbose_name=_('Название'),
         unique=True,
     )
     slug = models.SlugField(
@@ -51,22 +42,25 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
-    name = models.CharField(max_length=200)
-    year = models.PositiveSmallIntegerField(
-        validators=[
-            MinValueValidator(0),
-            validate_year,
-        ],
+    name = models.CharField(
+        max_length=200,
+        verbose_name=_('Название'),
+    )
+    year = models.SmallIntegerField(
+        validators=[validate_year],
+        verbose_name=_('Год выхода ("-" для года до н.э.)'),
     )
     rating = models.PositiveSmallIntegerField(
         validators=[
-            MinValueValidator(0),
+            MinValueValidator(1),
             MaxValueValidator(10),
         ],
+        verbose_name=_('Рейтинг'),
         blank=True,
         null=True,
     )
     description = models.TextField(
+        verbose_name=_('Описание'),
         blank=True,
         null=True,
     )
@@ -74,12 +68,14 @@ class Title(models.Model):
         Category,
         on_delete=models.SET_NULL,
         related_name='titles',
+        verbose_name=_('Категория'),
         blank=True,
         null=True,
     )
     genre = models.ManyToManyField(
         Genre,
         related_name='titles',
+        verbose_name=_('Жанр'),
         blank=True,
     )
 
