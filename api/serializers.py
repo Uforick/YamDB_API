@@ -49,19 +49,11 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
 
 
-class MeSerializer(serializers.ModelSerializer):
+class MeSerializer(UserSerializer):
 
-    class Meta:
-        fields = (
-            'first_name',
-            'last_name',
-            'username',
-            'bio',
-            'email',
-            'role'
-        )
+    class Meta(UserSerializer.Meta):
         read_only_fields = ('email', 'role')
-        model = User
+
 
 
 class ReviewSerializer(serializers.ModelSerializer):
