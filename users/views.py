@@ -29,7 +29,7 @@ def generate_alphanum_crypt_string():
 
 class UserCreateMixin(CreateModelMixin, GenericViewSet):
     serializer_class = serializers.EmailForTokenSerialzer
-    permission_classes = [AllowAny, ]
+    permission_classes = [AllowAny]
 
     def perform_create(self, serializer):
         email = self.request.POST.get('email')
@@ -48,10 +48,10 @@ class UserCreateMixin(CreateModelMixin, GenericViewSet):
 class UsersViewSet(CustomViewSet, RetrieveModelMixin, UpdateModelMixin):
     queryset = User.objects.all()
     serializer_class = serializers.UserSerializer
-    permission_classes = [permissions.IsAdminOnly, ]
+    permission_classes = [permissions.IsAdminOnly]
     lookup_field = 'username'
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['username', ]
+    filterset_fields = ['username']
 
     def perform_update(self, serializer):
         serializer.save()
@@ -59,11 +59,11 @@ class UsersViewSet(CustomViewSet, RetrieveModelMixin, UpdateModelMixin):
     @action(
         detail=False,
         methods=['get', 'patch'],
-        permission_classes=[IsAuthenticated]
+        permission_classes=[IsAuthenticated],
     )
     def me(self, request):
         me = get_object_or_404(User, username=request.user.username)
-        serializer = serializers.MeSerializer(me, data=request.data,)
+        serializer = serializers.MeSerializer(me, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(data=request.data)
 

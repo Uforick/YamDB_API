@@ -5,7 +5,7 @@ from .models import CustomUser
 
 class EmailForTokenSerialzer(serializers.ModelSerializer):
     class Meta:
-        fields = ('email', )
+        fields = ('email',)
         model = CustomUser
 
 
@@ -18,7 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
             'username',
             'bio',
             'email',
-            'role'
+            'role',
         )
         model = CustomUser
 

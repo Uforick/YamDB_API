@@ -17,6 +17,6 @@ urlpatterns = [
     path(
         'token/',
         TokenObtainPairView.as_view(),
-        name='token_obtain_pair'
+        name='token_obtain_pair',
     )
 ]
