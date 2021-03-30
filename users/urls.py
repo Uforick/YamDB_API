@@ -1,14 +1,16 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import (TokenObtainPairView)
-from .views import UserCreateMixin
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+from .views import UserCreateMixin, UsersViewSet
 
 router = DefaultRouter()
 router.register(
-    r'email',
+    r'auth/email',
     UserCreateMixin,
     basename='email'
 )
+router.register('users', UsersViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

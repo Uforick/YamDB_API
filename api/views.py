@@ -1,86 +1,59 @@
-from django_filters import CharFilter, FilterSet
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework import exceptions
-from rest_framework.response import Response
-from rest_framework import filters, permissions, status
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.decorators import action
 from django.db.models import Avg
-from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
-                                   ListModelMixin, RetrieveModelMixin,
-                                   UpdateModelMixin)
-from rest_framework.viewsets import GenericViewSet, ModelViewSet
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import exceptions, filters
+from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
-
-from . import serializers, permissions
-from .models import Categories, Genres, Titles, User, Review, Comment
-from .permissions import ReadOnly, IsAdmin, IsModerator, IsOwner
-
-
-class TitleFilter(FilterSet):
-    genre = CharFilter(field_name='genre__slug', lookup_expr='icontains')
-    category = CharFilter(field_name='category__slug', lookup_expr='icontains')
-    name = CharFilter(field_name='name', lookup_expr='icontains')
-
-    class Meta:
-        model = Titles
-        fields = ['year']
-
-
-class CategoriesViewSet(
-    CreateModelMixin,
-    DestroyModelMixin,
-    ListModelMixin,
-    GenericViewSet,
-):
-    queryset = Categories.objects.all()
-    serializer_class = serializers.CategoriesSerializer
-    permission_classes = [permissions.IsAdminOrReadOnly]
-    lookup_field = 'slug'
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['name', ]
-
-
-class GengresViewSet(
-    CreateModelMixin,
-    DestroyModelMixin,
-    ListModelMixin,
-    GenericViewSet,
-):
-    queryset = Genres.objects.all()
-    serializer_class = serializers.GenresSerializer
-    permission_classes = [permissions.IsAdminOrReadOnly]
-    lookup_field = 'slug'
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['name', ]
-
-
-class TitlesViewSet(
-    CreateModelMixin,
-    DestroyModelMixin,
-    ListModelMixin,
-    GenericViewSet,
-    RetrieveModelMixin,
+from rest_framework.mixins import (
+    CreateModelMixin, DestroyModelMixin, ListModelMixin, RetrieveModelMixin,
     UpdateModelMixin,
+)
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
+
+from . import serializers
+from .filters import TitleFilter
+from .models import Category, Comment, Genre, Review, Title, User
+from .permissions import (
+    IsAdmin, IsAdminOnly, IsAdminOrReadOnly, IsModerator, IsOwner, ReadOnly,
+)
+
+
+class CustomViewSet(
+    CreateModelMixin,
+    DestroyModelMixin,
+    ListModelMixin,
+    GenericViewSet,
 ):
-    queryset = Titles.objects.all()
-    serializer_class = serializers.TitlesSerializer
-    permission_classes = [permissions.IsAdminOrReadOnly]
+    pass
+
+
+class CategoryViewSet(CustomViewSet):
+    queryset = Category.objects.all()
+    serializer_class = serializers.CategorySerializer
+    permission_classes = [IsAdminOrReadOnly]
+    lookup_field = 'slug'
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', ]
+
+
+class GenreViewSet(CategoryViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = serializers.GenreSerializer
+
+
+class TitleViewSet(CustomViewSet, RetrieveModelMixin, UpdateModelMixin):
+    queryset = Title.objects.all()
+    serializer_class = serializers.TitleSerializer
+    permission_classes = [IsAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend]
     filterset_class = TitleFilter
 
-class UsersViewSet(
-    CreateModelMixin,
-    DestroyModelMixin,
-    ListModelMixin,
-    GenericViewSet,
-    RetrieveModelMixin,
-    UpdateModelMixin
-):
+
+class UsersViewSet(CustomViewSet, RetrieveModelMixin, UpdateModelMixin):
     queryset = User.objects.all()
     serializer_class = serializers.UserSerializer
-    permission_classes = [permissions.IsAdminOnly, ]
+    permission_classes = [IsAdminOnly, ]
     lookup_field = 'username'
     filter_backends = [DjangoFilterBackend]  
     filterset_fields = ['username', ]
@@ -139,6 +112,5 @@ class CommentViewSet(ModelViewSet):
         return review.comments.all()
 
     def perform_create(self, serializer):
-        review = get_object_or_404(Review, id=self.kwargs["review_id"])
+        review = get_object_or_404(Review, id=self.kwargs['review_id'])
         serializer.save(author=self.request.user, review=review)
-

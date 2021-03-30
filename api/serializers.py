@@ -1,89 +1,38 @@
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 
-
-from .models import Categories, Genres, Titles, User, Review, Comment
-
-
-class CategoriesSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        fields = ('name', 'slug')
-        model = Categories
+from .fields import TitleNestedField
+from .models import Category, Comment, Genre, Review, Title
 
 
-class GenresSerializer(serializers.ModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = ('name', 'slug')
-        model = Genres
+        model = Category
 
 
-class GenreField(serializers.SlugRelatedField):
-    def to_internal_value(self, data):
-        try:
-            return self.get_queryset().get(**{self.slug_field: data})
-        except (TypeError, ValueError):
-            self.fail('invalid')
+class GenreSerializer(serializers.ModelSerializer):
 
-    def to_representation(self, value):
-        return GenresSerializer(value).data
+    class Meta:
+        fields = ('name', 'slug')
+        model = Genre
 
 
-class CategoryField(serializers.SlugRelatedField):
-    def to_internal_value(self, data):
-        try:
-            return self.get_queryset().get(**{self.slug_field: data})
-        except (TypeError, ValueError):
-            self.fail('invalid')
-
-    def to_representation(self, value):
-        return CategoriesSerializer(value).data
-
-
-class TitlesSerializer(serializers.ModelSerializer):
-    genre = GenreField(
+class TitleSerializer(serializers.ModelSerializer):
+    genre = TitleNestedField(
         many=True,
         slug_field='slug',
-        queryset=Genres.objects.all()
+        queryset=Genre.objects.all(),
     )
-    category = CategoryField(
+    category = TitleNestedField(
         slug_field='slug',
-        queryset=Categories.objects.all()
+        queryset=Category.objects.all(),
     )
 
     class Meta:
         fields = '__all__'
-        model = Titles
-
-
-class UserSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        fields = (
-            'first_name',
-            'last_name',
-            'username',
-            'bio',
-            'email',
-            'role'
-        )
-        model = User
-
-
-class MeSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        fields = (
-            'first_name',
-            'last_name',
-            'username',
-            'bio',
-            'email',
-            'role'
-        )
-        read_only_fields = ('email', 'role')
-        model = User
+        model = Title
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -116,14 +65,14 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        read_only=True, slug_field="username", many=False
+        read_only=True, slug_field='username', many=False
     )
 
     class Meta:
         fields = (
-            "id",
-            "text",
-            "author",
-            "pub_date",
+            'id',
+            'text',
+            'author',
+            'pub_date',
         )
         model = Comment
