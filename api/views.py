@@ -9,7 +9,6 @@ from rest_framework.mixins import (
 )
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from . import serializers
@@ -57,23 +56,7 @@ class UsersViewSet(CustomViewSet, RetrieveModelMixin, UpdateModelMixin):
     permission_classes = [IsAdminOnly, ]
     lookup_field = 'username'
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['username', ]
-
-    def perform_update(self, serializer):
-        serializer.save()
-
-    @action(
-        detail=False,
-        methods=['get', 'patch'],
-        permission_classes=[IsAuthenticated]
-    )
-    def me(self, request):
-        me = get_object_or_404(User, username=request.user.username)
-        serializer = serializers.MeSerializer(me, data=request.data,)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(data=request.data)
-
-        return Response(serializer.data)
+    filterset_class = TitleFilter
 
 
 class ReviewViewSet(ModelViewSet):
@@ -92,25 +75,22 @@ class ReviewViewSet(ModelViewSet):
     def perform_create(self, serializer):
         title = get_object_or_404(Title, pk=self.kwargs['title_id'])
 
-        if Review.objects.filter(
-            author=self.request.user,
-            title=title
-        ).exists():
-            raise exceptions.ValidationError('Вы уже оставили отзыв')
-        serializer.save(author=self.request.user, title=title)
 
+
+    def avg_score(self, title):
         avg_score = Review.objects.filter(title=title).aggregate(Avg('score'))
-
         title.rating = avg_score['score__avg']
         title.save(update_fields=['rating'])
 
     def perform_update(self, serializer):
         title = get_object_or_404(Title, pk=self.kwargs['title_id'])
         serializer.save(author=self.request.user, title=title)
-        avg_score = Review.objects.filter(title=title).aggregate(Avg('score'))
+        self.avg_score(title)
 
-        title.rating = avg_score['score__avg']
-        title.save(update_fields=['rating'])
+    def perform_update(self, serializer):
+        title = get_object_or_404(Titles, pk=self.kwargs['title_id'])
+        serializer.save(author=self.request.user, title=title)
+        self.avg_score(title)
 
 
 class CommentViewSet(ModelViewSet):
@@ -120,13 +100,8 @@ class CommentViewSet(ModelViewSet):
                           IsOwner | IsAdmin | IsModerator | ReadOnly,)
 
     def get_queryset(self):
-        queryset = Comment.objects.all()
         review = get_object_or_404(Review, pk=self.kwargs['review_id'])
-        if review is not None:
-            queryset = Comment.objects.filter(
-                review=self.kwargs.get('review_id')
-            )
-        return queryset
+        return review.comments.all()
 
     def perform_create(self, serializer):
         review = get_object_or_404(Review, id=self.kwargs['review_id'])

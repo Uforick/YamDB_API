@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 
 from .fields import TitleNestedField
-from .models import Category, Comment, Genre, Review, Title, User
+from .models import Category, Comment, Genre, Review, Title
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -33,35 +33,6 @@ class TitleSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Title
-
-
-class UserSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        fields = (
-            'first_name',
-            'last_name',
-            'username',
-            'bio',
-            'email',
-            'role'
-        )
-        model = User
-
-
-class MeSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        fields = (
-            'first_name',
-            'last_name',
-            'username',
-            'bio',
-            'email',
-            'role'
-        )
-        read_only_fields = ('email', 'role')
-        model = User
 
 
 class ReviewSerializer(serializers.ModelSerializer):
