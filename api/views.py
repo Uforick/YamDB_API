@@ -57,24 +57,16 @@ class ReviewViewSet(ModelViewSet):
                           IsOwner | IsAdmin | IsModerator | ReadOnly,)
 
     def get_queryset(self):
-        queryset = Review.objects.all()
-        title = get_object_or_404(Title, pk=self.kwargs['title_id'])
-        if title is not None:
-            queryset = Review.objects.filter(title=self.kwargs.get('title_id'))
-        return queryset
-
-    def perform_create(self, serializer):
-        title = get_object_or_404(Title, pk=self.kwargs['title_id'])
-
-
+        title = get_object_or_404(Titles, pk=self.kwargs["title_id"])
+        return title.reviews.all()
 
     def avg_score(self, title):
         avg_score = Review.objects.filter(title=title).aggregate(Avg('score'))
         title.rating = avg_score['score__avg']
         title.save(update_fields=['rating'])
 
-    def perform_update(self, serializer):
-        title = get_object_or_404(Title, pk=self.kwargs['title_id'])
+    def perform_create(self, serializer):
+        title = get_object_or_404(Titles, pk=self.kwargs['title_id'])
         serializer.save(author=self.request.user, title=title)
         self.avg_score(title)
 
@@ -91,7 +83,7 @@ class CommentViewSet(ModelViewSet):
                           IsOwner | IsAdmin | IsModerator | ReadOnly,)
 
     def get_queryset(self):
-        review = get_object_or_404(Review, pk=self.kwargs['review_id'])
+        review = get_object_or_404(Review, pk=self.kwargs["review_id"])
         return review.comments.all()
 
     def perform_create(self, serializer):
