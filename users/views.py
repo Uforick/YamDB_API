@@ -58,7 +58,7 @@ def CheckEmail(request):
     serializer.is_valid(raise_exception=True)
     confirmation_code = request.POST.get('confirmation_code')
     email = request.POST.get('email')
-    check_user=get_object_or_404(User, email=email)
+    check_user = get_object_or_404(User, email=email)
     if confirmation_code is None:
         return HttpResponse("Введите confirmation_code")
     if email is None:
