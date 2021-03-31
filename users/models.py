@@ -19,6 +19,7 @@ class CustomUserManager(BaseUserManager):
         first_name=None,
         last_name=None,
         bio=None,
+        confirmation_code=None,
     ):
         user = self.model(
             email=email,
@@ -28,6 +29,7 @@ class CustomUserManager(BaseUserManager):
             first_name=first_name,
             last_name=last_name,
             bio=bio,
+            confirmation_code=confirmation_code,
         )
         user.set_password(password)
         user.is_staff = False
@@ -44,6 +46,7 @@ class CustomUserManager(BaseUserManager):
         first_name=None,
         last_name=None,
         bio=None,
+        confirmation_code=None,
     ):
         user = self.create_user(
             email=email,
@@ -53,6 +56,7 @@ class CustomUserManager(BaseUserManager):
             first_name=first_name,
             last_name=last_name,
             bio=bio,
+            confirmation_code=confirmation_code,
         )
         user.is_active = True
         user.is_staff = True
@@ -78,6 +82,7 @@ class CustomUser(AbstractUser):
     first_name = models.CharField(max_length=30, null=True, blank=True)
     last_name = models.CharField(max_length=30, null=True, blank=True)
     password = models.CharField(max_length=30, null=True, blank=True)
+    confirmation_code = models.CharField(max_length=30, null=True, blank=True)
 
     @property
     def is_admin(self):

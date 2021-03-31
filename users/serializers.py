@@ -27,3 +27,8 @@ class MeSerializer(UserSerializer):
 
     class Meta(UserSerializer.Meta):
         read_only_fields = ('email', 'role')
+
+
+class EmailConfermeSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    confirmation_code = serializers.CharField(required=True)
