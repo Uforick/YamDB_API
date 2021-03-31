@@ -4,17 +4,16 @@ import string
 from django.conf import settings
 from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
+from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import permissions
-from rest_framework.decorators import action, permission_classes
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import (CreateModelMixin, RetrieveModelMixin,
                                    UpdateModelMixin)
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from django.http import HttpResponse
 from rest_framework.viewsets import GenericViewSet
-from rest_framework.decorators import api_view, permission_classes
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from api.views import CustomViewSet
@@ -48,7 +47,7 @@ class UserCreateMixin(CreateModelMixin, GenericViewSet):
         serializer.save(
             confirmation_code=confirmation_code,
             password=confirmation_code_hashers,
-            email=email, username=email
+            email=email, username=email,
         )
 
 
