@@ -8,6 +8,6 @@ class IsAdminOnly(permissions.BasePermission):
             and any([
                 request.user.is_staff,
                 request.user.is_superuser,
-                request.user.is_admin
+                request.user.is_admin,
             ])
         ])
