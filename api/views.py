@@ -18,7 +18,7 @@ from .permissions import (
 )
 
 
-class CustomViewSet(
+class AllYouUsuallyNeedViewSet(
     CreateModelMixin,
     DestroyModelMixin,
     ListModelMixin,
@@ -27,7 +27,7 @@ class CustomViewSet(
     pass
 
 
-class CategoryViewSet(CustomViewSet):
+class CategoryViewSet(AllYouUsuallyNeedViewSet):
     queryset = Category.objects.all()
     serializer_class = serializers.CategorySerializer
     permission_classes = [IsAdminOrReadOnly]
@@ -41,7 +41,11 @@ class GenreViewSet(CategoryViewSet):
     serializer_class = serializers.GenreSerializer
 
 
-class TitleViewSet(CustomViewSet, RetrieveModelMixin, UpdateModelMixin):
+class TitleViewSet(
+    AllYouUsuallyNeedViewSet,
+    RetrieveModelMixin,
+    UpdateModelMixin
+):
     queryset = Title.objects.all()
     serializer_class = serializers.TitleSerializer
     permission_classes = [IsAdminOrReadOnly]
